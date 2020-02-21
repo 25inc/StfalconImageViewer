@@ -21,9 +21,13 @@ import android.view.ViewGroup
 import android.view.animation.DecelerateInterpolator
 import android.widget.FrameLayout
 import android.widget.ImageView
-import androidx.transition.AutoTransition
+import androidx.transition.ChangeBounds
+import androidx.transition.ChangeClipBounds
+import androidx.transition.ChangeImageTransform
+import androidx.transition.ChangeTransform
 import androidx.transition.Transition
 import androidx.transition.TransitionManager
+import androidx.transition.TransitionSet
 import com.stfalcon.imageviewer.common.extensions.*
 
 internal class TransitionImageAnimator(
@@ -144,9 +148,17 @@ internal class TransitionImageAnimator(
             .start()
     }
 
-    private fun createTransition(onTransitionEnd: (() -> Unit)? = null): Transition =
-        AutoTransition()
-            .setDuration(transitionDuration)
-            .setInterpolator(DecelerateInterpolator())
-            .addListener(onTransitionEnd = { onTransitionEnd?.invoke() })
+    private fun createTransition(onTransitionEnd: (() -> Unit)? = null): Transition  {
+        val transition = TransitionSet ()
+                .setOrdering(TransitionSet.ORDERING_TOGETHER)
+                .addTransition(ChangeBounds())
+                .addTransition(ChangeTransform())
+                .addTransition(ChangeClipBounds())
+                .addTransition(ChangeImageTransform())
+
+        return transition
+                .setDuration(transitionDuration)
+                .setInterpolator(DecelerateInterpolator())
+                .addListener(onTransitionEnd = { onTransitionEnd?.invoke() })
+    }
 }
